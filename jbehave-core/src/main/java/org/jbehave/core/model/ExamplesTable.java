@@ -508,11 +508,24 @@ public class ExamplesTable {
 
         private Map<String, String> parseProperties(String propertiesAsString) {
             Map<String, String> result = new LinkedHashMap<>();
+            Map<String, Boolean> shouldTrim = new LinkedHashMap<>();
+            String trimPropertyPrefix = "trimProperty_";
             if (!isEmpty(propertiesAsString)) {
                 for (String propertyAsString : propertiesAsString.split("(?<!\\\\),")) {
                     String[] property = StringUtils.split(propertyAsString, "=", 2);
-                    result.put(property[0].trim(), StringUtils.replace(property[1], "\\,", ",").trim());
+                    String propertyName = property[0];
+                    if (propertyName.trim().startsWith(trimPropertyPrefix)) {
+                        shouldTrim.put(propertyName.split(trimPropertyPrefix)[1], Boolean.valueOf(property[1]));
+                    }
+                    result.put(property[0].trim(), StringUtils.replace(property[1], "\\,", ","));
                  }
+            }
+            for (String propertyName : result.keySet()) {
+                Boolean trim = shouldTrim.get(propertyName);
+                String propertyValue = result.get(propertyName);
+                if (trim == null || trim) {
+                    result.put(propertyName, propertyValue.trim());
+                }
             }
             return result;
         }

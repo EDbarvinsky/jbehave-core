@@ -1,5 +1,6 @@
 package org.jbehave.core.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.model.ExamplesTable.TableProperties;
 import org.junit.Test;
 
@@ -70,5 +71,37 @@ public class TablePropertiesBehaviour {
         assertThat(properties.getTransformer(), equalTo("CUSTOM_TRANSFORMER"));
         assertThat(properties.getProperties().getProperty("tables"),
                 equalTo("{transformer=CUSTOM_TRANSFORMER, parameter1=value1}"));
+    }
+
+    @Test
+    public void shouldNotTrimPropertyValue() {
+        String propertiesAsString = "value= , trimProperty_value=false";
+        TableProperties tableProperties = new TableProperties(propertiesAsString, "|", "|",
+                "|--");
+        assertThat(tableProperties.getProperties().getProperty("value"), equalTo(" "));
+    }
+
+    @Test
+    public void shouldTrimPropertyValue() {
+        String propertiesAsString = "value= , trimProperty_value=true";
+        TableProperties tableProperties = new TableProperties(propertiesAsString, "|", "|",
+                "|--");
+        assertThat(tableProperties.getProperties().getProperty("value"), equalTo(StringUtils.EMPTY));
+    }
+
+    @Test
+    public void shouldTrimPropertyValueWrongParameter() {
+        String propertiesAsString = "value= , trimProperty_anotherValue=false";
+        TableProperties tableProperties = new TableProperties(propertiesAsString, "|", "|",
+                "|--");
+        assertThat(tableProperties.getProperties().getProperty("value"), equalTo(StringUtils.EMPTY));
+    }
+
+    @Test
+    public void shouldTrimByDefault() {
+        String propertiesAsString = "value= ";
+        TableProperties tableProperties = new TableProperties(propertiesAsString, "|", "|",
+                "|--");
+        assertThat(tableProperties.getProperties().getProperty("value"), equalTo(StringUtils.EMPTY));
     }
 }
